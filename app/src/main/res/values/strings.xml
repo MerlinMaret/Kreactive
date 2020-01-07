@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Test</string>
+
+    <!-- Permissions -->
+    <string name="permission_default_explanation">L\'application a besoin de votre autorisation pour
+        acceder à cette fonctionnalitée.
+    </string>
+    <string name="permission_default_always_deny">L\'application a besoin de votre autorisation pour
+        acceder à cette fonctionnalitée.\nMerci d\'accepeter cette permission manuellement
+    </string>
+    <string name="search">Recherche</string>
+    <string name="empty_search_error">Veuillez rentrer une recherche</string>
 </resources>
