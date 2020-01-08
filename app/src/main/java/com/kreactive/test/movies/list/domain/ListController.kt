@@ -21,12 +21,13 @@ object ListController : BaseController<ListResult, ListAction>() {
             is ListAction.FirstInit -> firstInit(action)
             is ListAction.SearchChange -> searchChange(action)
             is ListAction.ClickSearch -> clickSearch(action)
+            is ListAction.AddOnList -> addOnList(action)
         }
     }
 
     private fun firstInit(action: ListAction.FirstInit) {
         results.value = ListResult.SetSearch(action.search)
-        search(action.search)
+        search(action.search, false)
     }
 
     private fun searchChange(action: ListAction.SearchChange) {
@@ -34,16 +35,20 @@ object ListController : BaseController<ListResult, ListAction>() {
     }
 
     private fun clickSearch(action: ListAction.ClickSearch) {
-        search(action.search)
+        search(action.search, true)
+    }
+
+    private fun addOnList(action: ListAction.AddOnList) {
+        search(action.search, false)
     }
 
     //endregion
 
-    private fun search(search: String) {
+    private fun search(search: String, reset : Boolean) {
         val searchLiveData = MovieRepository.loadSearch(search)
 
         searchObserver = Observer {
-            val page = it?.maxPageLoaded ?: 0
+            val page = if(!reset) it?.maxPageLoaded ?: 0 else 0
             val nextPage = page + 1
             moviesObserver?.let { movieLiveData?.removeObserver(it) }
             movieLiveData = MovieRepository.loadMovies(search, nextPage)

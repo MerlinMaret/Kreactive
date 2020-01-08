@@ -6,4 +6,5 @@ sealed class ListAction : Action {
     class FirstInit(val search: String) : ListAction()
     class SearchChange(val search: String) : ListAction()
     class ClickSearch(val search: String) : ListAction()
+    class AddOnList(val search: String) : ListAction()
 }

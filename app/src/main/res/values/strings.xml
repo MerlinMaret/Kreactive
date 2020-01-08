@@ -10,4 +10,5 @@
     </string>
     <string name="search">Recherche</string>
     <string name="empty_search_error">Veuillez rentrer une recherche</string>
+    <string name="search_more">Rechercher plus</string>
 </resources>

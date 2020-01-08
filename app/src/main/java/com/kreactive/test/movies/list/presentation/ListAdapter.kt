@@ -7,26 +7,42 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.kreactive.test.R
+import com.kreactive.test.movies.list.domain.ListAction
 import com.kreactive.test.movies.list.model.MovieListItem
+import com.kreactive.test.movies.list.presentation.ListViewModel
 import kotlinx.android.synthetic.main.item_list.view.*
 
-class ListAdapter : ListAdapter<MovieListItem, ListViewHolder>(ListDiffUtils()) {
+class ListAdapter(val viewModel: ListViewModel) :
+    ListAdapter<MovieListItem?, RecyclerView.ViewHolder>(ListDiffUtils()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false)
-        return ListViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        if (viewType == ViewType.ADD.ordinal) {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_add_list, parent, false)
+            return AddListViewHolder(view, viewModel)
+        } else {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false)
+            return ListViewHolder(view)
+        }
     }
 
-    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ListViewHolder -> holder.bind(getItem(position))
+            is AddListViewHolder -> holder.bind()
+        }
     }
 
-    override fun getItemCount(): Int {
-        return super.getItemCount()
+    override fun submitList(list: List<MovieListItem?>?) {
+        val totalList: MutableList<MovieListItem?> = mutableListOf()
+        list?.let { totalList.addAll(it) }
+        totalList.add(null)
+        super.submitList(totalList)
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position < itemCount) {
+        if (getItem(position) != null) {
             return ViewType.MOVIE.ordinal
         } else {
             return ViewType.ADD.ordinal
@@ -41,12 +57,20 @@ class ListAdapter : ListAdapter<MovieListItem, ListViewHolder>(ListDiffUtils()) 
 
 class ListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-    fun bind(item: MovieListItem) {
-        itemView.item_title.text = item.title
+    fun bind(item: MovieListItem?) {
+        itemView.item_title.text = item?.title
     }
 }
 
-class ListDiffUtils : DiffUtil.ItemCallback<MovieListItem>() {
+class AddListViewHolder(view: View, val listViewModel: ListViewModel) :
+    RecyclerView.ViewHolder(view) {
+
+    fun bind() {
+        itemView.setOnClickListener { listViewModel.addOnList() }
+    }
+}
+
+class ListDiffUtils : DiffUtil.ItemCallback<MovieListItem?>() {
     override fun areItemsTheSame(oldItem: MovieListItem, newItem: MovieListItem): Boolean {
         return oldItem.id == newItem.id
     }

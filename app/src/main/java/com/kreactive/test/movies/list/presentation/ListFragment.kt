@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.fragment_list.*
 
 class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
 
-    private val adapter : ListAdapter = ListAdapter()
+    private lateinit var adapter : ListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,7 +27,9 @@ class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
         return ListViewModel.getFragmentInstance(this)
     }
 
-    override fun initView(view: View, savedInstanceState: Bundle?) {
+    override fun initView(view: View, savedInstanceState: Bundle?)
+    {
+        adapter = ListAdapter(viewModel)
         rv_movies.adapter = adapter
         et_search.addTextChangedListener {
             val action = ListAction.SearchChange(it.toString())

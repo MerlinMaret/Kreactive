@@ -24,6 +24,12 @@ class ListViewModel(controller: ListController) :
         initControllerSubscriptions()
     }
 
+    fun addOnList(){
+        val search = viewState.value?.search ?: ""
+        val addOnList = ListAction.AddOnList(search)
+        action(addOnList)
+    }
+
     //region Reducer
 
     override fun reducer(currentState: ListViewState?, result: ListResult): ListViewState {
