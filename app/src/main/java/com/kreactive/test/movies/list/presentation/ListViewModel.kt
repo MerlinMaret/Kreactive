@@ -32,6 +32,9 @@ class ListViewModel(controller: ListController) :
             is ListResult.SetSearch -> viewState.copy(
                 result.search
             )
+            is ListResult.UpdateList -> viewState.copy(
+                movies = result.list
+            )
         }
     }
 
