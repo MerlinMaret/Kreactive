@@ -12,6 +12,6 @@ data class ListViewState(
     val search : String = "",
     val movies : List<MovieListItem> = emptyList(),
     val firstLoad : BooleanOneTimeEvent = BooleanOneTimeEvent(),
-    val networkState : DataState.NetworkStatus = DataState.NetworkStatus.EMPTY,
+    val networkState : OneTimeEvent<DataState.NetworkStatus> = OneTimeEvent(DataState.NetworkStatus.EMPTY),
     val goToDetail : OneTimeEvent<String?> = OneTimeEvent(null)
 ) : ViewState

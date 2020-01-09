@@ -41,7 +41,7 @@ class ListViewModel(controller: ListController) :
             )
             is ListResult.UpdateList -> viewState.copy(
                 movies = result.list ?: viewState.movies,
-                networkState = result.networkStatus
+                networkState = OneTimeEvent(result.networkStatus)
             )
             is ListResult.GoToDetail -> viewState.copy(
                 goToDetail = OneTimeEvent(result.id)

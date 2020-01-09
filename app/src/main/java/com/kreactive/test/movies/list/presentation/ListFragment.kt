@@ -87,7 +87,7 @@ class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
     }
 
     private fun renderNetworkSate(viewState: ListViewState) {
-        val networkState = viewState.networkState
+        val networkState = viewState.networkState.get() ?: return
         if (networkState == DataState.NetworkStatus.ERROR) {
             srl_movies.isRefreshing
             view?.let { Snackbar.make(it,getString(R.string.network_error),Snackbar.LENGTH_SHORT).show() }
