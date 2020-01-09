@@ -2,6 +2,7 @@ package com.kreactive.test.app.data.model.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 
 const val MOVIE_TABLE_NAME = "Movie"
@@ -10,5 +11,9 @@ const val MOVIE_TABLE_NAME = "Movie"
 data class Movie(
     @PrimaryKey
     val id : String,
-    val title : String
+    val title : String,
+    val posterUrl : String,
+    val year : String,
+    val actors : String?,
+    val createdDate : Long = Calendar.getInstance().timeInMillis
 )

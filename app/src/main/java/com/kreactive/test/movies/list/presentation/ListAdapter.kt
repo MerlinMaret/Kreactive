@@ -10,6 +10,7 @@ import com.kreactive.test.R
 import com.kreactive.test.movies.list.domain.ListAction
 import com.kreactive.test.movies.list.model.MovieListItem
 import com.kreactive.test.movies.list.presentation.ListViewModel
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_list.view.*
 
 class ListAdapter(val viewModel: ListViewModel) :
@@ -23,7 +24,7 @@ class ListAdapter(val viewModel: ListViewModel) :
         } else {
             val view =
                 LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false)
-            return ListViewHolder(view)
+            return ListViewHolder(view, viewModel)
         }
     }
 
@@ -37,7 +38,9 @@ class ListAdapter(val viewModel: ListViewModel) :
     override fun submitList(list: List<MovieListItem?>?) {
         val totalList: MutableList<MovieListItem?> = mutableListOf()
         list?.let { totalList.addAll(it) }
-        totalList.add(null)
+        if(list?.size ?: 0 > 0){
+            totalList.add(null)
+        }
         super.submitList(totalList)
     }
 
@@ -55,10 +58,13 @@ class ListAdapter(val viewModel: ListViewModel) :
     }
 }
 
-class ListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+class ListViewHolder(view: View, val listViewModel: ListViewModel) : RecyclerView.ViewHolder(view) {
 
     fun bind(item: MovieListItem?) {
-        itemView.item_title.text = item?.title
+        itemView.item_tv_title.text = item?.title
+        itemView.item_tv_year.text = item?.year
+        Picasso.get().load(item?.posterUrl).into(itemView.item_iv_poster)
+        itemView.setOnClickListener { listViewModel.action(ListAction.ClickItem(item?.id)) }
     }
 }
 

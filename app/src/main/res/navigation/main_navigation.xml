@@ -14,8 +14,7 @@
             android:id="@+id/goToListFragment"
             app:destination="@id/listFragment"
             app:popUpTo="@+id/firstSearchFragment"
-            app:popUpToInclusive="true">
-        </action>
+            app:popUpToInclusive="true"></action>
     </fragment>
     <fragment
         android:id="@+id/listFragment"
@@ -25,7 +24,18 @@
         <argument
             android:name="search"
             android:defaultValue="null"
-            app:argType="string"
-            />
+            app:argType="string" />
+        <action
+            android:id="@+id/detailFragment"
+            app:destination="@id/movieDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/movieDetailFragment"
+        android:name="com.kreactive.test.movies.detail.presentation.MovieDetailFragment"
+        android:label="MovieDetailFragment">
+        <argument
+            android:name="movieId"
+            android:defaultValue="null"
+            app:argType="string" />
     </fragment>
 </navigation>

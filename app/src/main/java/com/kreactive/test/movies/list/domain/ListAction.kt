@@ -7,4 +7,6 @@ sealed class ListAction : Action {
     class SearchChange(val search: String) : ListAction()
     class ClickSearch(val search: String) : ListAction()
     class AddOnList(val search: String) : ListAction()
+    class Refresh(val search: String) : ListAction()
+    class ClickItem(val id: String?) : ListAction()
 }

@@ -39,7 +39,10 @@ data class SearchMovieResult(
     fun toMovie() : Movie {
         return Movie(
             imdbID,
-            title
+            title,
+            poster,
+            year,
+            null
         )
     }
 }

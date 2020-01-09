@@ -16,6 +16,12 @@ interface SearchDao{
     @Query("Select * FROM $SEARCH_TABLE_NAME WHERE search = :search")
     fun get(search : String): LiveData<Search>
 
+    @Query("Select * FROM $SEARCH_TABLE_NAME WHERE search = :search")
+    fun getSync(search : String): Search?
+
+    @Query("Delete FROM $SEARCH_TABLE_NAME WHERE $SEARCH_TABLE_NAME.search = :search")
+    fun delete(search : String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(search: Search)
 

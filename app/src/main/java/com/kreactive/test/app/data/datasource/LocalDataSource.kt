@@ -10,42 +10,66 @@ import com.kreactive.test.app.data.dao.SearchMovieJoinDao
 import com.kreactive.test.app.data.model.local.Movie
 import com.kreactive.test.app.data.model.local.Search
 import com.kreactive.test.app.data.model.local.SearchMovieJoin
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object LocalDataSource {
 
-    private lateinit var appDatabase : AppDatabase
-    private lateinit var movieDao : MovieDao
-    private lateinit var searchDao : SearchDao
+    private lateinit var appDatabase: AppDatabase
+    private lateinit var movieDao: MovieDao
+    private lateinit var searchDao: SearchDao
     private lateinit var searchMovieJoinDao: SearchMovieJoinDao
 
-    fun initDatabase(context : Context){
+    fun initDatabase(context: Context) {
         appDatabase = Room.databaseBuilder(context, AppDatabase::class.java, "test.db").build()
         movieDao = appDatabase.movieDao()
         searchDao = appDatabase.searchDao()
         searchMovieJoinDao = appDatabase.searchmoviejoinDao()
     }
 
-    fun loadSearch(search : String) : LiveData<Search>{
+    fun getSearch(search: String): LiveData<Search> {
         return searchDao.get(search)
     }
 
+    suspend fun getSearchAsync(search: String): Search? = withContext(Dispatchers.IO) {
+        searchDao.getSync(search)
+    }
 
-    fun searchMovie(search : String) : LiveData<List<Movie>>{
+
+    fun getMovies(search: String): LiveData<List<Movie>> {
         return searchMovieJoinDao.getMoviesForSearch(search)
     }
 
-    fun saveMovies(search : Search, movies: List<Movie>) {
-        Thread {
-            movieDao.add(movies)
-            searchDao.add(search)
-            for (movie in movies){
-                searchMovieJoinDao.add(
-                    SearchMovieJoin(
-                        search.search,
-                        movie.id
-                    )
+
+    fun getMovie(movieId: String): LiveData<Movie> {
+        return movieDao.get(movieId)
+    }
+
+
+    suspend fun loadMovieAsync(movieId: String): Movie = withContext(Dispatchers.IO) {
+        movieDao.getSync(movieId)
+    }
+
+
+    suspend fun setMovies(search: Search, movies: List<Movie>) = withContext(Dispatchers.IO) {
+        movieDao.add(movies)
+        searchDao.add(search)
+        for (movie in movies) {
+            searchMovieJoinDao.add(
+                SearchMovieJoin(
+                    search.search,
+                    movie.id
                 )
-            }
-        }.start()
+            )
+        }
+    }
+
+    suspend fun removeSearch(search: String) = withContext(Dispatchers.IO) {
+        searchDao.delete(search)
+        searchMovieJoinDao.delete(search)
+    }
+
+    suspend fun setMovie(movie: Movie) = withContext(Dispatchers.IO) {
+        movieDao.add(movie)
     }
 }

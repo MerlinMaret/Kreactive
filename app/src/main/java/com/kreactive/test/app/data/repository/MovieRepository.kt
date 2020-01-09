@@ -6,43 +6,89 @@ import com.kreactive.test.app.data.datasource.LocalDataSource
 import com.kreactive.test.app.data.datasource.RemoteDatasource
 import com.kreactive.test.app.data.model.local.Movie
 import com.kreactive.test.app.data.model.local.Search
-import com.kreactive.test.app.data.model.remote.SearchMoviesResult
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.*
 
 object MovieRepository {
 
-    fun loadSearch(search: String): LiveData<Search> {
-        return LocalDataSource.loadSearch(search)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+    val loadingState: MutableLiveData<Boolean> = MutableLiveData()
+
+    //region List
+
+    fun getSearch(search: String): LiveData<Search> {
+        return LocalDataSource.getSearch(search)
     }
 
-    fun loadMovies(search: String, page : Int): LiveData<List<Movie>> {
-        loadMoviesFromRemote(search, page)
-        return LocalDataSource.searchMovie(search)
+    suspend fun getSearchSync(search: String): Search? = withContext(Dispatchers.IO) {
+        LocalDataSource.getSearchAsync(search)
     }
 
-    fun loadMoviesFromRemote(search: String, page : Int) {
+    fun loadMovies(search: String, page: Int?, reset: Boolean): LiveData<List<Movie>> {
+        if(page != null){
+            loadMoviesFromRemote(search, page, reset)
+        }
+        return LocalDataSource.getMovies(search)
+    }
 
-        //TODO add dynamique page
-        RemoteDatasource.omdbapi.searchMovie(search, page).enqueue(
-            object : Callback<SearchMoviesResult> {
-                override fun onFailure(call: Call<SearchMoviesResult>?, t: Throwable?) {
+    fun loadMoviesFromRemote(search: String, page: Int, reset: Boolean) {
+        coroutineScope.launch {
+            if (reset) {
+                LocalDataSource.removeSearch(search)
+            }
 
-                }
+            loadingState.value = true
+            RemoteDatasource.searchMovie(
+                search,
+                page,
+                {
+                    this.launch {
+                        loadingState.value = false
+                    }
+                },
+                {
 
-                override fun onResponse(
-                    call: Call<SearchMoviesResult>?,
-                    response: Response<SearchMoviesResult>?
-                ) {
-                    response?.body()?.let { results ->
-                        val movies = results.search.map { it.toMovie() }
-                        LocalDataSource.saveMovies(
-                            results.toSearch(search,page),
-                            movies)
+                    coroutineScope.launch {
+                        it?.body()?.let { results ->
+                            val movies = results.search.map { it.toMovie() }
+                            LocalDataSource.setMovies(
+                                results.toSearch(search, page),
+                                movies
+                            )
+                            loadingState.value = false
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
+
+    //endregion
+
+    //region Detail
+
+    fun loadMovie(movieId: String): LiveData<Movie> {
+        loadMovieFromRemote(movieId)
+        return LocalDataSource.getMovie(movieId)
+    }
+
+    fun loadMovieFromRemote(movieId: String) {
+        coroutineScope.launch {
+            RemoteDatasource.getMovie(
+                movieId,
+                {
+                    //Nothing
+                },
+                {
+                    coroutineScope.launch {
+                        val movie = LocalDataSource.loadMovieAsync(movieId).copy(
+                            actors = it?.body()?.actors
+                        )
+                        movie.let { LocalDataSource.setMovie(it) }
+                    }
+                }
+            )
+        }
+    }
+
+    //endregion
 }

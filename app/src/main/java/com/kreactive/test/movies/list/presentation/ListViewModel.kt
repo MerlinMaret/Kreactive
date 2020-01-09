@@ -3,6 +3,7 @@ package com.kreactive.test.movies.list.presentation
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kreactive.test.app.domain.OneTimeEvent
 import com.kreactive.test.app.presentation.BaseViewModel
 import com.kreactive.test.movies.list.domain.ListAction
 import com.kreactive.test.movies.list.domain.ListController
@@ -40,6 +41,12 @@ class ListViewModel(controller: ListController) :
             )
             is ListResult.UpdateList -> viewState.copy(
                 movies = result.list
+            )
+            is ListResult.IsRefreshing -> viewState.copy(
+                isRefreshing = result.isRefreshing
+            )
+            is ListResult.GoToDetail -> viewState.copy(
+                goToDetail = OneTimeEvent(result.id)
             )
         }
     }
