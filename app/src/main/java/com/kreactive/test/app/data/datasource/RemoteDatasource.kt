@@ -1,6 +1,8 @@
 package com.kreactive.test.app.data.datasource
 
+import com.google.gson.GsonBuilder
 import com.kreactive.test.app.data.model.remote.GetMovieResult
+import com.kreactive.test.app.data.model.remote.SearchDeserializer
 import com.kreactive.test.app.data.model.remote.SearchMoviesResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,8 +32,13 @@ object RemoteDatasource {
 
         val baseUrl = "https://www.omdbapi.com"
 
+        val searchDeserializer =
+            GsonBuilder().registerTypeAdapter(SearchMoviesResult::class.java, SearchDeserializer()).create()
+
+
         omdbapi = Retrofit.Builder()
             .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create(searchDeserializer))
             .addConverterFactory(GsonConverterFactory.create())
             .client(httpClient.build())
             .build()
