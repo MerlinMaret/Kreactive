@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/firstSearchFragment">
+
+    <fragment
+        android:id="@+id/firstSearchFragment"
+        android:name="com.kreactive.test.movies.firstsearch.presentation.FirstSearchFragment"
+        android:label="FirstSearchFragment"
+        tools:layout="@layout/fragment_firstsearch">
+        <action
+            android:id="@+id/goToListFragment"
+            app:destination="@id/listFragment"
+            app:popUpTo="@+id/firstSearchFragment"
+            app:popUpToInclusive="true"></action>
+    </fragment>
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.kreactive.test.movies.list.presentation.ListFragment"
+        android:label="ListFragment"
+        tools:layout="@layout/fragment_list">
+        <argument
+            android:name="search"
+            android:defaultValue="null"
+            app:argType="string" />
+        <action
+            android:id="@+id/detailFragment"
+            app:destination="@id/movieDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/movieDetailFragment"
+        android:name="com.kreactive.test.movies.detail.presentation.MovieDetailFragment"
+        android:label="MovieDetailFragment">
+        <argument
+            android:name="movieId"
+            android:defaultValue="null"
+            app:argType="string" />
+    </fragment>
+</navigation>
