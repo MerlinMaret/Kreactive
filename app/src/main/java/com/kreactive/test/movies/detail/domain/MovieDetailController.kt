@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer
 import com.kreactive.test.app.data.model.local.Movie
 import com.kreactive.test.app.data.repository.MovieRepository
 import com.kreactive.test.app.domain.BaseController
+import com.kreactive.test.app.domain.DataState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -12,10 +13,6 @@ import kotlinx.coroutines.launch
 
 object MovieDetailController : BaseController<MovieDetailResult, MovieDetailAction>() {
 
-    val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
-
-    var movieLiveData: LiveData<Movie>? = null
-    var movieObserver: Observer<Movie>? = null
 
     override fun processImpl(action: MovieDetailAction) {
         when (action) {
@@ -23,20 +20,22 @@ object MovieDetailController : BaseController<MovieDetailResult, MovieDetailActi
         }
     }
 
+    var movieLiveData: LiveData<DataState<Movie>>? = null
+    val movieObserver: Observer<DataState<Movie>>? = Observer { dataState ->
+
+        val movie = dataState.data
+
+        results.value = MovieDetailResult.UpdateMovie(
+            movie?.title,
+            movie?.actors,
+            movie?.posterUrl,
+            dataState.status
+        )
+    }
+
     fun initView(action: MovieDetailAction.InitView) {
-
-        coroutineScope.launch {
-            movieObserver?.let { movieLiveData?.removeObserver(it) }
-            movieLiveData = MovieRepository.loadMovie(action.movieId)
-
-            movieObserver = Observer { movie ->
-                results.value = MovieDetailResult.UpdateMovie(
-                    movie.title,
-                    movie.actors,
-                    movie.posterUrl
-                )
-            }
-            movieObserver?.let { movieLiveData?.observeForever(it) }
-        }
+        movieObserver?.let { movieLiveData?.removeObserver(it) }
+        movieLiveData = MovieRepository.loadMovie(action.movieId)
+        movieObserver?.let { movieLiveData?.observeForever(it) }
     }
 }

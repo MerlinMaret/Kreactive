@@ -33,9 +33,10 @@ class MovieDetailViewModel(controller: MovieDetailController) :
         var viewState = currentState ?: MovieDetailViewState()
         return when (result) {
             is MovieDetailResult.UpdateMovie -> viewState.copy(
-                result.title,
-                result.posterUrl,
-                result.actors
+                result.title ?: viewState.title,
+                result.posterUrl ?: viewState.posterUrl,
+                result.actors ?: viewState.actors,
+                result.networkStatus
             )
         }
     }

@@ -40,10 +40,8 @@ class ListViewModel(controller: ListController) :
                 result.search
             )
             is ListResult.UpdateList -> viewState.copy(
-                movies = result.list
-            )
-            is ListResult.IsRefreshing -> viewState.copy(
-                isRefreshing = result.isRefreshing
+                movies = result.list ?: viewState.movies,
+                networkState = result.networkStatus
             )
             is ListResult.GoToDetail -> viewState.copy(
                 goToDetail = OneTimeEvent(result.id)

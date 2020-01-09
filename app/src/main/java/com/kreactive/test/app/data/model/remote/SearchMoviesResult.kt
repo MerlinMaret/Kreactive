@@ -6,10 +6,10 @@ import com.kreactive.test.app.data.model.local.Search
 
 data class SearchMoviesResult(
     @SerializedName("Search")
-    val search: List<SearchMovieResult>,
+    val search: List<SearchMovieResult>?,
 
     @SerializedName("totalResults")
-    val totalResults: Int,
+    val totalResults: Int?,
 
     @SerializedName("Response")
     val response: Boolean
@@ -17,7 +17,7 @@ data class SearchMoviesResult(
     fun toSearch(search : String, pageNumber : Int) : Search {
         return Search(
             search,
-            totalResults,
+            totalResults ?: 0,
             pageNumber
         )
     }

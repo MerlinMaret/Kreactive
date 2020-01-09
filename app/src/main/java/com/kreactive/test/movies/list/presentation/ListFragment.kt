@@ -14,6 +14,8 @@ import kotlinx.android.synthetic.main.fragment_list.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import android.widget.LinearLayout
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import com.kreactive.test.app.domain.DataState
 
 
 class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
@@ -60,7 +62,7 @@ class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
         renderFirstLoad(viewState)
         renderSearch(viewState)
         renderList(viewState)
-        renderIsRefreshing(viewState)
+        renderNetworkSate(viewState)
         renderGoToDetail(viewState)
     }
 
@@ -84,8 +86,13 @@ class ListFragment : ArchitectureFragment<ListViewState, ListViewModel>() {
         adapter.submitList(viewState.movies)
     }
 
-    private fun renderIsRefreshing(viewState: ListViewState) {
-        srl_movies.isRefreshing = viewState.isRefreshing
+    private fun renderNetworkSate(viewState: ListViewState) {
+        val networkState = viewState.networkState
+        if (networkState == DataState.NetworkStatus.ERROR) {
+            srl_movies.isRefreshing
+            view?.let { Snackbar.make(it,getString(R.string.network_error),Snackbar.LENGTH_SHORT).show() }
+        }
+        srl_movies.isRefreshing = networkState == DataState.NetworkStatus.LOADING
     }
 
     private fun renderGoToDetail(viewState: ListViewState) {

@@ -82,8 +82,7 @@ class ListDiffUtils : DiffUtil.ItemCallback<MovieListItem?>() {
     }
 
     override fun areContentsTheSame(oldItem: MovieListItem, newItem: MovieListItem): Boolean {
-        oldItem.equals(newItem)
-        return true
+        return oldItem == newItem
     }
 
 }

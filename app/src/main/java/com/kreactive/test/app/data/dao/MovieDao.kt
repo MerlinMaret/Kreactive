@@ -11,19 +11,16 @@ interface MovieDao{
     @Query("Select * FROM $MOVIE_TABLE_NAME")
     fun getAll(): LiveData<List<Movie>>
 
-    @Query("Select * FROM $MOVIE_TABLE_NAME WHERE title = :title")
-    fun search(title : String): LiveData<List<Movie>>
-
     @Query("Select * FROM $MOVIE_TABLE_NAME WHERE id = :movieId")
     fun get(movieId : String): LiveData<Movie>
 
     @Query("Select * FROM $MOVIE_TABLE_NAME WHERE id = :movieId")
-    fun getSync(movieId: String): Movie
+    fun getAsync(movieId: String): Movie?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(movie: Movie)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun add(movies: List<Movie>)
 
     @Delete

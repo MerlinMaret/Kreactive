@@ -2,15 +2,16 @@ package com.kreactive.test.app.data.datasource
 
 import com.kreactive.test.app.data.model.remote.GetMovieResult
 import com.kreactive.test.app.data.model.remote.SearchMoviesResult
-import retrofit2.Call
-import retrofit2.Retrofit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Callback
-import retrofit2.Response
+import retrofit2.*
+import java.io.IOException
 
 
 object RemoteDatasource {
@@ -37,64 +38,53 @@ object RemoteDatasource {
             .create(OMDBApiService::class.java)
     }
 
-    fun searchMovie(
+    suspend fun searchMovie(
         search: String,
-        page: Int,
-        onFailure: () -> Unit,
-        onSuccess: (Response<SearchMoviesResult>?) -> Unit
-    ) {
-        omdbapi.searchMovie(search, page).enqueue(
-            object : Callback<SearchMoviesResult> {
-                override fun onFailure(call: Call<SearchMoviesResult>?, t: Throwable?) {
-                    onFailure.invoke()
-                }
+        page: Int
+    ): ResultWrapper<SearchMoviesResult> = withContext(Dispatchers.IO) {
+        safeApiCall {
+            omdbapi.searchMovie(search, page)!!
 
-                override fun onResponse(
-                    call: Call<SearchMoviesResult>?,
-                    response: Response<SearchMoviesResult>?
-                ) {
-                    onSuccess.invoke(response)
-                }
-            }
-        )
+        }
     }
 
-    fun getMovie(
-        movieId: String,
-        onFailure: () -> Unit,
-        onSuccess: (Response<GetMovieResult>?) -> Unit
-    ) {
-        omdbapi.getMovie(movieId).enqueue(
-            object : Callback<GetMovieResult> {
-                override fun onFailure(call: Call<GetMovieResult>?, t: Throwable?) {
-                    onFailure.invoke()
-                }
-
-                override fun onResponse(
-                    call: Call<GetMovieResult>?,
-                    response: Response<GetMovieResult>?
-                ) {
-                    onSuccess.invoke(response)
-                }
-            }
-        )
+    suspend fun getMovie(
+        movieId: String
+    ): ResultWrapper<GetMovieResult> = withContext(Dispatchers.IO) {
+        safeApiCall {
+            omdbapi.getMovie(movieId)!!
+        }
     }
+
+    private suspend fun <T> safeApiCall(apiCall: suspend () -> T): ResultWrapper<T> {
+        return withContext(Dispatchers.IO) {
+            try {
+                ResultWrapper.Success(apiCall.invoke())
+            } catch (throwable: Throwable) {
+                ResultWrapper.NetworkError(throwable)
+            }
+        }
+    }
+}
+
+sealed class ResultWrapper<out T> {
+    data class Success<out T>(val value: T) : ResultWrapper<T>()
+    data class NetworkError(val error: Throwable) : ResultWrapper<Nothing>()
 }
 
 interface OMDBApiService {
 
-
     @GET(".")
-    fun searchMovie(
+    suspend fun searchMovie(
         @Query("s") title: String,
         @Query("page") page: Int,
         @Query("apikey") apikey: String = "9cef1082"
-    ): Call<SearchMoviesResult>
+    ): SearchMoviesResult?
 
     @GET(".")
-    fun getMovie(
+    suspend fun getMovie(
         @Query("i") movieId: String,
         @Query("apikey") apikey: String = "9cef1082"
-    ): Call<GetMovieResult>
+    ): GetMovieResult?
 }
 
